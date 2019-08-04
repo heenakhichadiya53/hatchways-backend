@@ -21,7 +21,54 @@ app.get('/api/posts', (req, res) => {
         }
     };
     const filteredPosts = posts.filter(filterPosts);
-    res.status(200).send(filteredPosts);
+
+    //remove duplicate posts
+    const uniquePosts = [...new Set(filteredPosts)];
+
+    //sort posts by ID(default)
+    uniquePosts.sort((a, b) => {
+        if (a.id > b.id) return 1;
+        if (a.id < b.id) return -1;
+        return 0;
+    })
+
+    if (req.query.hasOwnProperty('sortBy')) {
+        if (req.query.sortBy == 'reads') {
+            uniquePosts.sort((a, b) => {
+                if (a.reads > b.reads) return 1;
+                if (a.reads < b.reads) return -1;
+                return 0;
+            })
+            res.status(200).send(uniquePosts);
+            res.end();
+        }
+
+        else if (req.query.sortBy == 'likes') {
+            uniquePosts.sort((a, b) => {
+                if (a.likes > b.likes) return 1;
+                if (a.likes < b.likes) return -1;
+                return 0;
+            })
+            res.status(200).send(uniquePosts);
+            res.end();
+        }
+
+        else if (req.query.sortBy == 'popularity') {
+            uniquePosts.sort((a, b) => {
+                if (a.popularity > b.popularity) return 1;
+                if (a.popularity < b.popularity) return -1;
+                return 0;
+            })
+            res.status(200).send(uniquePosts);
+            res.end();
+        }
+
+        else {
+            res.status(400).send({ "error": "sortBy parameter is invalid" })
+        }
+    }
+
+    res.status(200).send(uniquePosts);
 })
 
 app.listen(3000, () => console.log('listening on port 3000...'));
